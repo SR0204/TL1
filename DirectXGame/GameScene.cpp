@@ -45,6 +45,37 @@ void GameScene::Initialize() {
 		//"object"
 		std::vector<ObjectData> objects;
 	};
+
+	//-------------------------------------------------------------------//
+	// Jsonファイルのデシリアライズ化
+	//-------------------------------------------------------------------//
+
+	// jsonファイルのパス名
+	const std::string fullpath = std::string("Resources/levels/") + "untitled.json";
+
+	// ファイルストリーム
+	std::ifstream file;
+
+	// ファイルを開く
+	file.open(fullpath);
+	// ファイルオープン失敗をチェック
+	if (file.fail()) {
+		assert(0);
+	}
+
+	nlohmann::json deserialized; // deserialized : 逆シリアライズ化
+	                             // →1つの文字列をメモリ中のデータ構造化すること
+	                             // serialize : 一列に並べる操作のこと
+	                             // →１つの文字列で表現する「直列化」のこと
+
+	// ファイルから読み込み、メモリへ格納
+	file >> deserialized;
+
+	// 正しいレベルデータファイルかチェック
+	assert(deserialized.is_object()); // objectか※json形式にはさまざまな型がある
+	                                  // object型はその中でも「キーと値のペアを持つ構造」つまり連想配列が扱えるか聞いている
+	assert(deserialized.contains("name"));//"name"が含まれているか
+	assert(deserialized["name"].is_string());//["name"]は文字列か？
 }
 
 void GameScene::Update() {}
