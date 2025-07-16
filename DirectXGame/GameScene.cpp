@@ -1,5 +1,4 @@
 #include "GameScene.h"
-#include <KamataEngine.h>
 
 #include <cassert>
 #include <fstream>
@@ -19,39 +18,12 @@ void GameScene::Initialize() {
 	// レベルデータを格納する為の構造体
 	//-------------------------------------------------------------------//
 
-	// オブジェクト一個分のデータ
-	struct ObjectData {
-		std::string type; //"type"
-		std::string name; //"name"
-
-		//"transform"
-		struct Transform {
-			Vector3 translation; //"translation"
-			Vector3 rotation;    //"rotation"
-			Vector3 scaling;     //"scaling"
-		};
-
-		Transform transform; // メンバの準備
-
-		//"file name"
-		std::string file_name;
-	};
-
-	// レベルデータ
-	struct LevelData {
-		//"name"
-		std::string name;
-
-		//"object"
-		std::vector<ObjectData> objects;
-	};
-
 	//-------------------------------------------------------------------//
 	// Jsonファイルのデシリアライズ化
 	//-------------------------------------------------------------------//
 
 	// jsonファイルのパス名
-	const std::string fullpath = std::string("Resources/levels/") + "untitled.json";
+	const std::string fullpath = std::string("Resources/levels/") + "scene.json";
 
 	// ファイルストリーム
 	std::ifstream file;
@@ -72,12 +44,109 @@ void GameScene::Initialize() {
 	file >> deserialized;
 
 	// 正しいレベルデータファイルかチェック
-	assert(deserialized.is_object()); // objectか※json形式にはさまざまな型がある
-	                                  // object型はその中でも「キーと値のペアを持つ構造」つまり連想配列が扱えるか聞いている
-	assert(deserialized.contains("name"));//"name"が含まれているか
-	assert(deserialized["name"].is_string());//["name"]は文字列か？
+	assert(deserialized.is_object());         // objectか※json形式にはさまざまな型がある
+	                                          // object型はその中でも「キーと値のペアを持つ構造」つまり連想配列が扱えるか聞いている
+	assert(deserialized.contains("name"));    //"name"が含まれているか
+	assert(deserialized["name"].is_string()); //["name"]は文字列か？
+
+	//-------------------------------------------------------------------//
+	// レベルデータを構造体に格納していく
+	//-------------------------------------------------------------------//
+
+	levelData = new LevelData();
+
+	//"name"を文字列として取得
+	levelData->name = deserialized["name"].get<std::string>();
+	assert(levelData->name == "scene"); // それは"scene"か?
+
+	//"objects"の全オブジェクトを走査
+	for (nlohmann::json& object : deserialized["objects"]) {
+		// オブジェクト１つ分の妥当性のチェック
+		assert(object.contains("type")); //"type"が含まれているか
+
+		if (object["type"].get<std::string>() == "MESH") {
+			// １個分の要素の準備
+			levelData->objects.emplace_back(ObjectData{});
+			ObjectData& objectData = levelData->objects.back();
+
+			objectData.type = object["type"].get<std::string>(); //"type"
+			objectData.type = object["name"].get<std::string>(); //"name"
+
+			// トランスフォームのパラメーター読み込み
+			nlohmann::json& transform = object["transform"];
+
+			// 平行移動"transform"
+			objectData.transform.translation.x = (float)transform["translation"][0];
+			objectData.transform.translation.y = (float)transform["translation"][2];
+			objectData.transform.translation.z = (float)transform["translation"][1];
+
+			// 回転角"rotation"
+			objectData.transform.rotation.x = -(float)transform["rotation"][0];
+			objectData.transform.rotation.y = -(float)transform["rotation"][2];
+			objectData.transform.rotation.z = -(float)transform["rotation"][1];
+
+			// 拡大縮小"scaling"
+			objectData.transform.scaling.x = (float)transform["scaling"][0];
+			objectData.transform.scaling.y = (float)transform["scaling"][2];
+			objectData.transform.scaling.z = (float)transform["scaling"][1];
+
+			// TODO: オブジェクト走査を再起関数にまとめ、再起呼び出しで枝を走査する
+			if (object.contains("children")) {
+			}
+
+			//"file name"
+			if (object.contains("file_name")) {
+				objectData.file_name = object["file_name"].get<std::string>();
+			}
+
+			//-------------------------------------------------------------------//
+			// レベルデータからオブジェクトを生成、配置
+			//-------------------------------------------------------------------//
+			for (auto& objectData_ : levelData->objects) {
+				// モデルファイル名
+				Model* model = nullptr;
+				decltype(models)::iterator it = models.find(objectData_.file_name);
+				if (it != models.end()) {
+					model = it->second;
+				}
+				// モデルを指定して3Dオブジェクトを生成
+				WorldTransform* newObject = new WorldTransform();
+
+				// 位置の設定
+				newObject->translation_ = objectData_.transform.translation;
+
+				// 回転の設定
+				newObject->rotation_ = objectData_.transform.rotation;
+
+				// 拡大縮小
+				newObject->scale_ = objectData_.transform.scaling;
+
+				newObject->Initialize();
+
+				// 配列に登録
+				worldTransforms.push_back(newObject);
+			}
+		}
+	}
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
 
-void GameScene::Draw() {}
+	for (WorldTransform* object : worldTransforms) {
+		object->TransferMatrix();
+	}
+}
+
+void GameScene::Draw() {
+	//-------------------------------------------------------------------//
+	// レベルデータからオブジェクトを生成、配置
+	//-------------------------------------------------------------------//
+	for (auto& objectData : levelData->objects) {
+		// モデルファイル名
+		Model* model = nullptr;
+		decltype(models)::iterator it = models.find(objectData.file_name);
+		if (it != models.end()) {
+			model = it->second;
+		}
+	}
+}
