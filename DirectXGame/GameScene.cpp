@@ -138,15 +138,5 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-	//-------------------------------------------------------------------//
-	// レベルデータからオブジェクトを生成、配置
-	//-------------------------------------------------------------------//
-	for (auto& objectData : levelData->objects) {
-		// モデルファイル名
-		Model* model = nullptr;
-		decltype(models)::iterator it = models.find(objectData.file_name);
-		if (it != models.end()) {
-			model = it->second;
-		}
-	}
+
 }

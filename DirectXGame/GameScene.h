@@ -48,4 +48,6 @@ private:
 	std::vector<KamataEngine::WorldTransform*> worldTransforms;
 
 	LevelData* levelData = nullptr;
+
+	Camera* camera_ = nullptr;
 };
