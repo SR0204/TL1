@@ -1,6 +1,7 @@
 #pragma once
 #include <KamataEngine.h>
 #include <map>
+#include<3d/Camera.h>
 
 class GameScene {
 
@@ -49,5 +50,5 @@ private:
 
 	LevelData* levelData = nullptr;
 
-	Camera* camera_ = nullptr;
+	KamataEngine::Camera* camera_ = nullptr;
 };
