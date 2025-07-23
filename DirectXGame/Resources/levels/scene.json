@@ -2,6 +2,41 @@
     "name": "scene",
     "objects": [
         {
+            "type": "MESH",
+            "name": "Cube",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "cube",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
             "type": "LIGHT",
             "name": "Light",
             "transform": {
@@ -45,12 +80,12 @@
         },
         {
             "type": "MESH",
-            "name": "ICO球",
+            "name": "球",
             "transform": {
                 "translation": [
-                    0.0,
-                    3.962522029876709,
-                    0.0
+                    5.183417320251465,
+                    4.507943630218506,
+                    2.5526397228240967
                 ],
                 "rotation": [
                     0.0,
@@ -63,55 +98,7 @@
                     1.0
                 ]
             },
-            "collider": {
-                "type": "BOX",
-                "center": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "size": [
-                    2.0,
-                    2.0,
-                    2.0
-                ]
-            },
-            "children": [
-                {
-                    "type": "MESH",
-                    "name": "Cube",
-                    "transform": {
-                        "translation": [
-                            0.0,
-                            -3.962522029876709,
-                            0.0
-                        ],
-                        "rotation": [
-                            0.0,
-                            -0.0,
-                            0.0
-                        ],
-                        "scaling": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    },
-                    "collider": {
-                        "type": "BOX",
-                        "center": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "size": [
-                            2.0,
-                            2.0,
-                            2.0
-                        ]
-                    }
-                }
-            ]
+            "file_name": "cube"
         }
     ]
 }

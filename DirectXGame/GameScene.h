@@ -50,5 +50,5 @@ private:
 
 	LevelData* levelData = nullptr;
 
-	KamataEngine::Camera* camera_ = nullptr;
+	KamataEngine::Camera camera_;
 };

@@ -98,54 +98,22 @@ void GameScene::Initialize() {
 			if (object.contains("file_name")) {
 				objectData.file_name = object["file_name"].get<std::string>();
 			}
-
-			//-------------------------------------------------------------------//
-			// レベルデータからオブジェクトを生成、配置
-			//-------------------------------------------------------------------//
-			for (auto& objectData_ : levelData->objects) {
-				// モデルファイル名
-				Model* model = nullptr;
-				decltype(models)::iterator it = models.find(objectData_.file_name);
-				if (it != models.end()) {
-					model = it->second;
-				}
-				// モデルを指定して3Dオブジェクトを生成
-				WorldTransform* newObject = new WorldTransform();
-
-				// 位置の設定
-				newObject->translation_ = objectData_.transform.translation;
-
-				// 回転の設定
-				newObject->rotation_ = objectData_.transform.rotation;
-
-				// 拡大縮小
-				newObject->scale_ = objectData_.transform.scaling;
-
-				newObject->Initialize();
-
-				// 配列に登録
-				worldTransforms.push_back(newObject);
-			}
 		}
 	}
-}
-
-void GameScene::Update() {
-
-	for (WorldTransform* object : worldTransforms) {
-		object->TransferMatrix();
-	}
-}
-
-void GameScene::Draw() {
-
+	//-------------------------------------------------------------------//
+	// レベルデータからオブジェクトを生成、配置
+	//-------------------------------------------------------------------//
 	for (auto& objectData_ : levelData->objects) {
 		// モデルファイル名
 		Model* model = nullptr;
 		decltype(models)::iterator it = models.find(objectData_.file_name);
 		if (it != models.end()) {
 			model = it->second;
+		} else {
+			model = Model::CreateFromOBJ(objectData_.file_name);
+			models[objectData_.file_name] = model;
 		}
+
 		// モデルを指定して3Dオブジェクトを生成
 		WorldTransform* newObject = new WorldTransform();
 
@@ -163,4 +131,28 @@ void GameScene::Draw() {
 		// 配列に登録
 		worldTransforms.push_back(newObject);
 	}
+
+	camera_.Initialize();
+}
+
+void GameScene::Update() {
+
+	for (WorldTransform* object : worldTransforms) {
+		object->matWorld_ = MathUtility::MakeTranslateMatrix(object->translation_);
+		object->TransferMatrix();
+	}
+}
+
+void GameScene::Draw() {
+
+	Model::PreDraw();
+
+	int i = 0;
+
+	for (auto& objectData_ : levelData->objects) {
+		models[objectData_.file_name]->Draw(*worldTransforms[i], camera_);
+		i++;
+	}
+
+	Model::PostDraw();
 }
